@@ -3,16 +3,16 @@ version: "3.2"
 services:
   node1:
     image: go-gossip:latest
-    command: -address="0.0.0.0" -seeds="node2,node3,node4"
+    command: -address=0.0.0.0 -seeds=node2,node3,node4
   node2:
     image: go-gossip:latest
-    command: -address="0.0.0.0" -seeds="node4"
+    command: -address=0.0.0.0 -seeds=node4
   node3:
     image: go-gossip:latest
-    command: -address="0.0.0.0" -seeds="node1"
+    command: -address=0.0.0.0 -seeds=node1
   node4:
     image: go-gossip:latest
-    command: -address="0.0.0.0" -seeds="node3"
+    command: -address=0.0.0.0 -seeds=node3
   node5:
     image: go-gossip:latest
-    command: -address="0.0.0.0" -seeds="node3"
+    command: -address=0.0.0.0 -seeds=node3
