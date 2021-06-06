@@ -9,7 +9,7 @@ import (
 )
 
 func SendMessage(conn *net.UDPConn, dst *net.UDPAddr, msg *message.Message) (int, error) {
-	encoded, err := json.Marshal(message.NewJSONMessage(*msg))
+	encoded, err := json.Marshal(msg)
 	if err != nil {
 		return 0, err
 	}
@@ -40,13 +40,12 @@ func ReceiveMessage(conn *net.UDPConn) (*message.Message, *net.UDPAddr, error) {
 		return nil, nil, err
 	}
 
-	var jsonMsg message.JSONMessage
-	err = json.Unmarshal(bytes[:count], &jsonMsg)
+	// var jsonMsg message.JSONMessage
+	var msg message.Message
+	err = json.Unmarshal(bytes[:count], &msg)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	msg := jsonMsg.Message()
 
 	return &msg, addr, nil
 }

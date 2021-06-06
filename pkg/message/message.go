@@ -1,6 +1,7 @@
 package message
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -54,4 +55,17 @@ func NewMessage(action int) *Message {
 		Time:    time.Now(),
 		Members: membership.Membership{Members: make(map[string]time.Time)},
 	}
+}
+
+func (msg *Message) MarshalJSON() ([]byte, error) {
+	return json.Marshal(NewJSONMessage(*msg))
+}
+
+func (msg *Message) UnmarshalJSON(data []byte) error {
+	var jsonMsg JSONMessage
+	if err := json.Unmarshal(data, &jsonMsg); err != nil {
+		return err
+	}
+	*msg = jsonMsg.Message()
+	return nil
 }
