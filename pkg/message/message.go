@@ -2,7 +2,6 @@ package message
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"gossip/pkg/action"
@@ -10,33 +9,49 @@ import (
 )
 
 type Message struct {
+	Id      int
+	Action  int
+	Time    time.Time
+	Members membership.Membership
+}
+
+type JSONMessage struct {
 	Id      int                   `json:"id"`
 	Action  int                   `json:"action"`
-	Time    string                `json:"time"`
+	Time    int64                 `json:"time"`
 	Members membership.Membership `json:"members"`
 }
 
-func (msg Message) String() string {
-	timestamp, _ := time.Parse(time.RFC3339, msg.Time)
-	tm := timestamp
-	loc, _ := time.LoadLocation("Asia/Kolkata")
-
-	return fmt.Sprintf("{Id: %d, Action: %s, Time: %s}", msg.Id, action.ActionToString(msg.Action), tm.In(loc))
+func NewJSONMessage(msg Message) JSONMessage {
+	return JSONMessage{
+		msg.Id,
+		msg.Action,
+		msg.Time.Unix(),
+		msg.Members,
+	}
 }
 
-type MsgError struct {
-	Cause error
+func (msg JSONMessage) Message() Message {
+	return Message{
+		msg.Id,
+		msg.Action,
+		time.Unix(msg.Time, 0),
+		msg.Members,
+	}
+}
+
+func (msg Message) String() string {
+	tm := msg.Time
+	loc, _ := time.LoadLocation("Local")
+
+	return fmt.Sprintf("{Id: %d, Action: %s, Time: %s}", msg.Id, action.ActionToString(msg.Action), tm.In(loc))
 }
 
 func NewMessage(action int) *Message {
 	return &Message{
 		Id:      int(time.Now().Unix()),
 		Action:  action,
-		Time:    strconv.FormatInt(time.Now().Unix(), 10),
+		Time:    time.Now(),
 		Members: membership.Membership{Members: make(map[string]time.Time)},
 	}
-}
-
-func (msg *MsgError) Error() string {
-	return fmt.Sprintf("Cause %s\n", msg.Cause)
 }

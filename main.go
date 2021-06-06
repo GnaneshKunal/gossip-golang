@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"math/rand"
 	"net"
@@ -42,7 +41,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	fmt.Println("Listening on ", gossip.Address)
+	log.Println("Listening on ", gossip.Address)
 
 	done := make(chan bool)
 	processor := make(chan packet.Packet, 1000)

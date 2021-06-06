@@ -9,22 +9,15 @@ import (
 )
 
 func SendMessage(conn *net.UDPConn, dst *net.UDPAddr, msg *message.Message) (int, error) {
-
-	sendMessageInternal := func(conn *net.UDPConn, dst *net.UDPAddr, msg *message.Message) (int, error) {
-
-		encoded, err := json.Marshal(msg)
-		if err != nil {
-			return 0, err
-		}
-
-		return conn.WriteToUDP(encoded, dst)
+	encoded, err := json.Marshal(message.NewJSONMessage(*msg))
+	if err != nil {
+		return 0, err
 	}
 
-	count, err := sendMessageInternal(conn, dst, msg)
+	count, err := conn.WriteToUDP(encoded, dst)
+
 	if err != nil {
-		return 0, &message.MsgError{
-			Cause: err,
-		}
+		return 0, err
 	}
 
 	return count, nil
@@ -44,18 +37,16 @@ func ReceiveMessage(conn *net.UDPConn) (*message.Message, *net.UDPAddr, error) {
 
 	count, addr, err := conn.ReadFromUDP(bytes)
 	if err != nil {
-		return nil, nil, &message.MsgError{
-			Cause: err,
-		}
+		return nil, nil, err
 	}
 
-	var msg message.Message
-	err = json.Unmarshal(bytes[:count], &msg)
+	var jsonMsg message.JSONMessage
+	err = json.Unmarshal(bytes[:count], &jsonMsg)
 	if err != nil {
-		return nil, nil, &message.MsgError{
-			Cause: err,
-		}
+		return nil, nil, err
 	}
+
+	msg := jsonMsg.Message()
 
 	return &msg, addr, nil
 }

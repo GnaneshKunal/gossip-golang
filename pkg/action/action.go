@@ -14,6 +14,8 @@ func ActionToString(action int) string {
 		return "PING"
 	case PONG:
 		return "PONG"
+	case MEMBERSHIP:
+		return "MEMBERSHIP"
 	default:
 		log.Println("Unknown action")
 		return ""
