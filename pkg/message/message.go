@@ -7,38 +7,34 @@ import (
 
 	"gossip/pkg/action"
 	"gossip/pkg/membership"
+	gt "gossip/pkg/time"
 )
 
 type Message struct {
-	Id      int
-	Action  int
-	Time    time.Time
-	Members membership.Membership
-}
-
-type JSONMessage struct {
 	Id      int                   `json:"id"`
 	Action  int                   `json:"action"`
-	Time    int64                 `json:"time"`
+	Time    time.Time             `json:"-"`
 	Members membership.Membership `json:"members"`
+}
+
+type MessageAlias Message
+
+type JSONMessage struct {
+	MessageAlias
+	Time gt.Time `json:"time"`
 }
 
 func NewJSONMessage(msg Message) JSONMessage {
 	return JSONMessage{
-		msg.Id,
-		msg.Action,
-		msg.Time.Unix(),
-		msg.Members,
+		MessageAlias(msg),
+		gt.Time{msg.Time},
 	}
 }
 
-func (msg JSONMessage) Message() Message {
-	return Message{
-		msg.Id,
-		msg.Action,
-		time.Unix(msg.Time, 0),
-		msg.Members,
-	}
+func (jm JSONMessage) Message() Message {
+	msg := Message(jm.MessageAlias)
+	msg.Time = msg.Time
+	return msg
 }
 
 func (msg Message) String() string {
@@ -57,8 +53,8 @@ func NewMessage(action int) *Message {
 	}
 }
 
-func (msg *Message) MarshalJSON() ([]byte, error) {
-	return json.Marshal(NewJSONMessage(*msg))
+func (msg Message) MarshalJSON() ([]byte, error) {
+	return json.Marshal(NewJSONMessage(msg))
 }
 
 func (msg *Message) UnmarshalJSON(data []byte) error {
